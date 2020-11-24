@@ -109,7 +109,7 @@ namespace TheFellowshipOfCode.DotNet.YourAdventure
                 activeTiles.Add(start);
                 var visitedTiles = new List<Tile>();
                 
-                private static List<Tile> GetWalkableTiles(List<string> map, Tile currentTile, Tile targetTile)
+                private static List<Tile> GetWalkableTiles(List<string> mapW, Tile currentTile, Tile targetTile)
                 {
                     var possibleTiles = new List<Tile>()
                     {
@@ -121,13 +121,13 @@ namespace TheFellowshipOfCode.DotNet.YourAdventure
 
                     possibleTiles.ForEach(tile => tile.SetDistance(targetTile.X, targetTile.Y));
 
-                    var maxX = map.First().Length - 1;
-                    var maxY = map.Count - 1;
+                    var maxX = mapW.First().Length - 1;
+                    var maxY = mapW.Count - 1;
 
                     return possibleTiles
                         .Where(tile => tile.X >= 0 && tile.X <= maxX)
                         .Where(tile => tile.Y >= 0 && tile.Y <= maxY)
-                        .Where(tile => map[tile.Y][tile.X] == ' ' || map[tile.Y][tile.X] == 'B')
+                        .Where(tile => mapW[tile.Y][tile.X] == ' ' || mapW[tile.Y][tile.X] == 'B')
                         .ToList();
                 }
                 
@@ -138,7 +138,6 @@ namespace TheFellowshipOfCode.DotNet.YourAdventure
                     if(checkTile.X == finish.X && checkTile.Y == finish.Y)
                     {
                         Console.Log(We are at the destination!);
-                        //We can actually loop through the parents of each tile to find our exact path which we will show shortly. 
                         return;
                     }
 
@@ -149,11 +148,9 @@ namespace TheFellowshipOfCode.DotNet.YourAdventure
 
                     foreach(var walkableTile in walkableTiles)
                     {
-                        //We have already visited this tile so we don't need to do so again!
                         if (visitedTiles.Any(x => x.X == walkableTile.X && x.Y == walkableTile.Y))
                             continue;
 
-                        //It's already in the active list, but that's OK, maybe this new tile has a better value (e.g. We might zigzag earlier but this is now straighter). 
                         if(activeTiles.Any(x => x.X == walkableTile.X && x.Y == walkableTile.Y))
                         {
                             var existingTile = activeTiles.First(x => x.X == walkableTile.X && x.Y == walkableTile.Y);
@@ -164,7 +161,6 @@ namespace TheFellowshipOfCode.DotNet.YourAdventure
                             }
                         }else
                         {
-                            //We've never seen this tile before so add it to the list. 
                             activeTiles.Add(walkableTile);
                         }
                     }
