@@ -93,12 +93,12 @@ namespace TheFellowshipOfCode.DotNet.YourAdventure
                 {
                     for (var i = 0; i >= map.Tiles.Col; i++)
                     {
-                        if (map.Tiles[j, i] == "A")
+                        if (map.Tiles[j, i].GetType() = StartPoint)
                         {
                             start = map.Tiles[j, i];
                         }
 
-                        if (map.Tiles[j, i] == "F")
+                        if (map.Tiles[j, i].GetType() = FinishPoint)
                         {
                             finish = map.Tiles[j, i];
                         }
@@ -108,6 +108,70 @@ namespace TheFellowshipOfCode.DotNet.YourAdventure
                 var activeTiles = new List<Tile>();
                 activeTiles.Add(start);
                 var visitedTiles = new List<Tile>();
+                
+                private static List<Tile> GetWalkableTiles(List<string> map, Tile currentTile, Tile targetTile)
+                {
+                    var possibleTiles = new List<Tile>()
+                    {
+                        new Tile { X = currentTile.X, Y = currentTile.Y - 1, Parent = currentTile, Cost = currentTile.Cost + 1 },
+                        new Tile { X = currentTile.X, Y = currentTile.Y + 1, Parent = currentTile, Cost = currentTile.Cost + 1},
+                        new Tile { X = currentTile.X - 1, Y = currentTile.Y, Parent = currentTile, Cost = currentTile.Cost + 1 },
+                        new Tile { X = currentTile.X + 1, Y = currentTile.Y, Parent = currentTile, Cost = currentTile.Cost + 1 },
+                    };
+
+                    possibleTiles.ForEach(tile => tile.SetDistance(targetTile.X, targetTile.Y));
+
+                    var maxX = map.First().Length - 1;
+                    var maxY = map.Count - 1;
+
+                    return possibleTiles
+                        .Where(tile => tile.X >= 0 && tile.X <= maxX)
+                        .Where(tile => tile.Y >= 0 && tile.Y <= maxY)
+                        .Where(tile => map[tile.Y][tile.X] == ' ' || map[tile.Y][tile.X] == 'B')
+                        .ToList();
+                }
+                
+                while(activeTiles.Any())
+                {
+                    var checkTile = activeTiles.OrderBy(x => x.CostDistance).First();
+
+                    if(checkTile.X == finish.X && checkTile.Y == finish.Y)
+                    {
+                        Console.Log(We are at the destination!);
+                        //We can actually loop through the parents of each tile to find our exact path which we will show shortly. 
+                        return;
+                    }
+
+                    visitedTiles.Add(checkTile);
+                    activeTiles.Remove(checkTile);
+
+                    var walkableTiles = GetWalkableTiles(map, checkTile, finish);
+
+                    foreach(var walkableTile in walkableTiles)
+                    {
+                        //We have already visited this tile so we don't need to do so again!
+                        if (visitedTiles.Any(x => x.X == walkableTile.X && x.Y == walkableTile.Y))
+                            continue;
+
+                        //It's already in the active list, but that's OK, maybe this new tile has a better value (e.g. We might zigzag earlier but this is now straighter). 
+                        if(activeTiles.Any(x => x.X == walkableTile.X && x.Y == walkableTile.Y))
+                        {
+                            var existingTile = activeTiles.First(x => x.X == walkableTile.X && x.Y == walkableTile.Y);
+                            if(existingTile.CostDistance > checkTile.CostDistance)
+                            {
+                                activeTiles.Remove(existingTile);
+                                activeTiles.Add(walkableTile);
+                            }
+                        }else
+                        {
+                            //We've never seen this tile before so add it to the list. 
+                            activeTiles.Add(walkableTile);
+                        }
+                    }
+                }
+
+                Console.WriteLine("No Path Found!");
+            }
             }
         }
     }
